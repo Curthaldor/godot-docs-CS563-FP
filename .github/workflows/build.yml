@@ -18,14 +18,18 @@ jobs:
         with:
           fetch-depth: 0  # Required for accurate analysis
 
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y make gcc g++ unzip
+
       - name: Install Build Wrapper
         uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v5
 
-      - name: Run Build Wrapper
+      - name: Run Make Build with Build Wrapper
         run: |
-          cd godot  # Make sure to adjust to the correct directory
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} \
-            scons platform=linuxbsd target=release_debug compile_commands=1
+          make clean  # Clean any previous builds
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make
         shell: bash
 
       - name: SonarQube Scan
