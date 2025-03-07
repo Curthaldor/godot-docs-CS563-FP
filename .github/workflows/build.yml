@@ -29,9 +29,10 @@ jobs:
           unzip build-wrapper-linux-x86.zip
           echo "$(pwd)/build-wrapper-linux-x86" >> $GITHUB_PATH
         shell: bash
-
+        
       - name: Run Build Wrapper
         run: |
+          cd godot  # or the correct directory if it's different
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} \
             scons platform=linuxbsd target=release_debug compile_commands=1
         shell: bash
