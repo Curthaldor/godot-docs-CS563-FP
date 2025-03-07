@@ -22,6 +22,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y make gcc g++ unzip
+          # Install Sphinx to avoid the error during 'make'
+          pip install sphinx
 
       - name: Install Build Wrapper
         uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v5
