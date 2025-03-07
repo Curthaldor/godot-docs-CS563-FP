@@ -5,21 +5,37 @@ on:
       - master
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
     env:
-      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory  # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Install Build Wrapper
-        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v5
+          fetch-depth: 0  # Required for accurate analysis
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y scons clang gcc g++ unzip
+
+      - name: Download and Install Build Wrapper
+        run: |
+          wget https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+          unzip build-wrapper-linux-x86.zip
+          echo "$(pwd)/build-wrapper-linux-x86" >> $GITHUB_PATH
+        shell: bash
+
       - name: Run Build Wrapper
         run: |
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} scons -c
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} \
+            scons platform=linuxbsd target=release_debug compile_commands=1
+        shell: bash
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
